@@ -1,18 +1,16 @@
 import University.University;
-import Users.*;
-
+import Users.Admin;
+import Users.User;
 import java.util.Scanner;
-import java.util.ArrayList;
-import java.util.List;
+
 public class Main {
     public static void main(String[] args) {
-        List<Admin> admin = new ArrayList<>();
         University uni = new University();
-        User user;
-        admin.add(new Admin(uni, "admin", "admin", "admin"));
+        net.DataBase.Create(uni);
 
+        User user;
         int opc;
-        user = admin.get(0);
+        user = new Admin(uni, "admin", "admin", "admin");
         user.Menu();
         do{
             System.out.println("1- Estudiante\n2-Profesor\n3-Padre de familia\n4-Admin\n5-Salir");
@@ -50,14 +48,13 @@ public class Main {
                 }
                 case 4 -> {
                     if (ID.equalsIgnoreCase("admin admin")) {
-                        user = admin.get(0);
+                        user = new Admin(uni, "", "", "");
                         user.Menu();
                     }
                 }
                 default -> System.out.println("Opcion incorrecta");
             }
         }while(opc != 5);
-
     }
 
 }

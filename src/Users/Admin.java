@@ -1,6 +1,8 @@
 package Users;
 
-import University.*;
+import University.Subject;
+import University.University;
+
 import java.util.Scanner;
 
 public class Admin extends User{
@@ -14,12 +16,13 @@ public class Admin extends User{
         int opc;
         do{
             System.out.println("Escoje que quieres hacer: ");
-            System.out.println("1-Registrar estudiante\n" +
-                    "2-Asignar Materia a un estudiante\n" +
-                    "3-Actualizar datos del estudiante\n" +
-                    "4-Crear una nueva materia\n" +
-                    "5-Crear profesor"+
-                    "6-Salir");
+            System.out.println("""
+                    1-Registrar estudiante
+                    2-Asignar Materia a un estudiante
+                    3-Actualizar datos del estudiante
+                    4-Crear una nueva materia
+                    5-Crear profesor
+                    6-Salir""");
             opc = new Scanner(System.in).nextInt();
             switch (opc) {
                 case 1 -> createStudent();
@@ -31,16 +34,20 @@ public class Admin extends User{
         }while(opc != 6);
     }
     private void createStudent(){
+        String cache;
         String[] gen = lblGenericCreateUser("estudiante");
-        createUser(new Student(gen[0], gen[1], gen[2]));
+        createUser(new Student(gen[0], gen[1], gen[2], uni));
+        net.AddUsers.Add(gen[0], gen[2], gen[1], "Student");
         do{
             System.out.println("Usuario registrado correctamente," +
                     "\n¿El estudiante ya tiene parientes creados? Y/N y/n");
             if (new Scanner(System.in).next().trim().equalsIgnoreCase("y")){
                 System.out.println("Dime el numero de identificacion del tutor legal del estudiante");
-                Father father = uni.searchFatherById(new Scanner(System.in).next());
+                cache = new Scanner(System.in).nextLine();
+                Father father = uni.searchFatherById(cache);
                 if (father != null){
                     father.addSon(uni.searchStudentById(gen[2]));
+                    net.match.setFatherWithTheySon(cache,gen[2]);
                     return;
                 }
                 System.out.println("No se encontro un padre de familia con ese ID");
@@ -49,11 +56,14 @@ public class Admin extends User{
                         "¿Fue un error al digitalizar la identificacion?, " +
                         "¿Desea crear la cuenta del tutor? Y/N y/n");
                 if (new Scanner(System.in).next().trim().equalsIgnoreCase("y")){
-                    String cache = gen[2]; //Basicamente para no perder el ID de su hijo
+                    cache = gen[2]; //Basicamente para no perder el ID de su hijo
                     gen = lblGenericCreateUser("tutor");
                     createUser(new Father(gen[0], gen[1], gen[2]));
                     Father father = uni.searchFatherById(gen[2]);
                     father.addSon(uni.searchStudentById(cache));
+
+                    net.match.setFatherWithTheySon(gen[2],cache);
+                    net.AddUsers.Add(gen[0], gen[2], gen[1], "Father");
                     return;
                 }
             }
@@ -61,7 +71,8 @@ public class Admin extends User{
     }
     private void createTeacher(){
         String[] args = lblGenericCreateUser("profesor");
-        createUser(new Teacher(args[0], args[1], args[2]));
+        createUser(new Teacher(args[0], args[2], args[1], uni));
+        net.AddUsers.Add(args[0], args[2], args[1], "Teacher");
     }
     private void createUser(Object type){
         if (type.getClass().equals(Student.class)){
@@ -85,12 +96,18 @@ public class Admin extends User{
         return register;
     }
     private void associationSubToStd(){
+        String StudentID, SubjectID;
         System.out.println("Dime el numero de identificacion del estudiante: ");
-        Student student = uni.searchStudentById(new Scanner(System.in).next());
+        StudentID = new Scanner(System.in).next();
+        Student student = uni.searchStudentById(StudentID);
         System.out.println("Dime el numero de identificacion de la materia: ");
-        Subject subject = uni.searchSubjectById(new Scanner(System.in).next());
+        SubjectID = new Scanner(System.in).next();
+        Subject subject = uni.searchSubjectById(SubjectID);
         if (student != null && subject != null){
-            student.setValueToSubject(subject, "0");
+            if(!student.getSubjectsAndGrade().containsKey(subject)){
+                student.setValueToSubject(subject, "0");
+                net.AddSubToStd.Add(StudentID, SubjectID, "0.0");
+            }
             return;
         }
         System.out.println("Registra un estudiante o crea la materia, para empezar");
@@ -115,5 +132,7 @@ public class Admin extends User{
         System.out.println("Dime el ID: ");
         ID = new Scanner(System.in).nextLine();
         uni.CreateSubject(name, ID);
+        net.Subjects.Add(name, ID);
     }
+
 }

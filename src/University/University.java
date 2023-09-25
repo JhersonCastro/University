@@ -1,20 +1,22 @@
 package University;
 
-import Users.*;
+import Users.Father;
+import Users.Student;
+import Users.Teacher;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 public class University {
-    private List<Subject> subjects = new ArrayList<>();
-    private List<Student> student = new ArrayList<>();
-    private List<Teacher> teachers = new ArrayList<>();
-    private List<Father> fathers = new ArrayList<>();
+    private final List<Subject> subjects = new ArrayList<>();
+    private final List<Student> student = new ArrayList<>();
+    private final List<Teacher> teachers = new ArrayList<>();
+    private final List<Father> fathers = new ArrayList<>();
+
+
+
     public List<Subject> getSubjects() {
         return subjects;
-    }
-    public List<Student> getStudent() {
-        return student;
     }
     public Student searchStudentById(String ID){
         Optional<Student> theStudent = student.stream().filter(std -> std.getId().equals(ID)).findFirst();
